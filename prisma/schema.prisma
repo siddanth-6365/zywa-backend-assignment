@@ -1,0 +1,39 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+model User {
+  id          Int     @id @default(autoincrement())
+  phoneNumber String  @unique
+  cards       Card[]
+}
+
+model Card {
+  id       Int        @id @default(autoincrement())
+  cardId   String     @unique
+  user     User       @relation(fields: [userId], references: [id])
+  userId   Int
+  events   CardEvent[]
+}
+
+model CardEvent {
+  id        Int        @id @default(autoincrement())
+  card      Card       @relation(fields: [cardId], references: [id])
+  cardId    Int
+  eventType EventType
+  timestamp DateTime
+  comment   String?
+}
+
+enum EventType {
+  PICKUP
+  DELIVERY_EXCEPTION
+  DELIVERED
+  RETURNED
+}
